@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+        <canvas id="canvas" width="513" height="513"></canvas>
+        <script  type="text/javascript">
+       onload = function() {
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  var nRows = canvas.height;
+  var nCols = canvas.width;
+  var middleRow = 0.5 * (nRows - 1);
+  var middleCol = 0.5 * (nCols - 1);
+  var step = 0.00625;
+  var depth = 100.0;
+  var depthOver16 = 0.0625 * depth;
+  var depthOver8 = 0.125 * depth;
+  var depthOver4 = 0.25 * depth;
+  var depthOver2 = 0.5 * depth;
+  var depthPlus1 = depth + 1;
+  var pixels = [];
+
+  for (var row = 0; row < nRows; row++) {
+    for (var col = 0; col < nCols; col++) {
+      // Initialize
+      var myX = (col - middleCol) * step;
+      var myY = (row - middleRow) * step;
+
+      // Fractalize
+      var i = 0;
+      var x = 0;
+      var y = 0;
+      while ((x*x + y*y < 4) && (i < depth)) {
+        var xtmp = x*x - y*y + myX;
+        y = 2*x*y + myY;
+        x = xtmp;
+        i++;
+      }
+
+      // Colorize
+      if (i < depthOver16) {
+        var r = mapToColor(i, 0, depthOver16);
+        // yellow to green
+        context.fillStyle = "rgb(" + (255 - r) + ", 255, 0)";
+      }
+      else if (i < depthOver8) {
+        var b = mapToColor(i, depthOver16, depthOver8);
+        // green to cyan
+        context.fillStyle = "rgb(0, 255, " + b + ")";
+      }
+      else if (i < depthOver4) {
+        var r = mapToColor(i, depthOver8, depthOver4);
+        // blue to purple
+        context.fillStyle = "rgb(" + r + ", 0, 255)";
+      }
+      else if (i < depthOver2) {
+        var b = mapToColor(i, depthOver4, depthOver2);
+        // purple to red
+        context.fillStyle = "rgb(255, 0, " + (255 - b) + ")";
+      }
+      else if (i <= depthPlus1) {
+        var r = mapToColor(i, depthOver2, depthPlus1);
+        // red to black
+        context.fillStyle = "rgb(" + (255 - r) + ", 0, 0)";
+      }
+      context.fillRect(col, row, 1, 1);
+    }
+  }
+};
+
+// Converts a value in the range [low..high] to the range [0..255]
+mapToColor = function(val, low, high) {
+  return Math.floor(255 * (val - low) / (high - low));
+};
+
+            
+           </script>
+    
+</body>
+</html>
